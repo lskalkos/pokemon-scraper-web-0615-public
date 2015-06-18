@@ -11,23 +11,40 @@ describe "Pokemon" do
 
   describe "has caught all 151 from scraping" do
     it "has all 151 pokemon" do
-      expect(@db.execute("YOUR SQL HERE").flatten.first).to eq(151)
+      sql = <<-SQL
+        SELECT * FROM pokemons ORDER BY id DESC;
+      SQL
+
+      expect(@db.execute(sql).flatten.first).to eq(151)
     end
 
     it "knows all the information about Horsea" do
-      expect(@db.execute("YOUR SQL HERE").flatten).to eq([116, "Horsea", "Water"])
+      sql = <<-SQL
+        SELECT * FROM pokemons WHERE name = "Horsea";
+      SQL
+      expect(@db.execute(sql).flatten).to eq([116, "Horsea", "Water"])
     end
 
     it "knows Psyduck is the 54th pokemon" do
-      expect(@db.execute("YOUR SQL HERE").flatten.first).to eq(54)
+      sql = <<-SQL
+        SELECT * FROM pokemons WHERE name = "Psyduck";
+      SQL
+      expect(@db.execute(sql).flatten.first).to eq(54)
     end
 
     it "knows pokemon with the id 143 is Snorlax" do
-      expect(@db.execute("YOUR SQL HERE").flatten.first).to eq("Snorlax")
+      sql = <<-SQL
+        SELECT name FROM pokemons WHERE id = 143;
+      SQL
+
+      expect(@db.execute(sql).flatten.first).to eq("Snorlax")
     end
 
     it "knows Charmander's type is fire" do
-      expect(@db.execute("YOUR SQL HERE").flatten.first).to eq("Fire")
+      sql = <<-SQL
+        SELECT type FROM pokemons WHERE name = "Charmander";
+      SQL
+      expect(@db.execute(sql).flatten.first).to eq("Fire")
     end
   end
 
@@ -37,11 +54,17 @@ describe "Pokemon" do
     end
 
     it "knows the pokemon count increases" do
-      expect(@db.execute("YOUR SQL HERE").flatten.first).to eq(152)
+      sql = <<-SQL
+        SELECT * FROM pokemons ORDER BY id DESC;
+      SQL
+      expect(@db.execute(sql).flatten.first).to eq(152)
     end
 
     it "has Togepi as the last pokemon" do
-      expect(@db.execute("YOUR SQL HERE").flatten.first).to eq("Togepi")
+      sql = <<-SQL
+        SELECT name FROM pokemons ORDER BY id DESC LIMIT 1;
+      SQL
+      expect(@db.execute(sql).flatten.first).to eq("Togepi")
     end
   end
 
@@ -54,21 +77,34 @@ describe "Pokemon" do
       @sql_runner.execute_create_hp_column
     end
 
-    xit "knows that a pokemon have a default hp of 60" do
-      expect(@db.execute("YOUR SQL HERE").flatten.first).to eq(60)
+    it "knows that a pokemon have a default hp of 60" do
+      sql = <<-SQL
+        SELECT hp from pokemons;
+      SQL
+      expect(@db.execute(sql).flatten.first).to eq(60)
     end
-
+    #
     # So Ian and you have decided to battle.  He chose Magikarp (rookie mistake), and you chose Pikachu.
     # He used splash. It wasn't very effective. It did one damage.
-    xit "alters Pikachu's hp to 59" do
+    it "alters Pikachu's hp to 59" do
       pikachu.alter_hp(59)
-      expect(@db.execute("YOUR SQL HERE").flatten.first).to eq(59)
+      sql = <<-SQL
+        SELECT hp
+        FROM pokemons
+        WHERE id = ?;
+      SQL
+      expect(@db.execute(sql, pikachu.id).flatten.first).to eq(59)
     end
-
-    # Now we alter Magikarp's hp
-    xit "alters Magikarp's hp" do
+    #
+    # # Now we alter Magikarp's hp
+    it "alters Magikarp's hp" do
       magikarp.alter_hp(0)
-      expect(@db.execute("YOUR SQL HERE").flatten.first).to eq(0)
+      sql = <<-SQL
+        SELECT hp
+        FROM pokemons
+        WHERE id = ?;
+      SQL
+      expect(@db.execute(sql, magikarp.id).flatten.first).to eq(0)
     end
 
     # The pokemon battle has now been won, and you are the Pokemon and SQL Master!
